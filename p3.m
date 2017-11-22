@@ -6,26 +6,26 @@ function [A, b, xtrue] = gen_data()
   N = 400;
   k = 6;
   [Q, R] = qr(randn(N));
-  D = diag(10.^(1:k/N:k));
-  A = Q*D*Q';
+  D = diag(10.^(1:(k-1)/N:k));
+  A = Q*D(1:N,1:N)*Q';
   b = ones(N,1);
-  xtrue = A/b;
+  xtrue = A\b;
 end
 
 % Steepest descent routine
-function x = sd(A, b)
+function x = sd(A, b, x1)
   n = length(b);
   x0 = rand(n, 1);
-  x1 = A\b;
   nx1 = norm(x1);
   while true
     d = b - A*x0;
     x = x0 + ((d'*d)/(d'*A*d))*d;
-    if norm(x-x1)/x1 < 1e-4
+    if norm(x-x1)/nx1 < 1e-4
       break
     end
-    x0 = x
+    x0 = x;
   end
 end
 
-sd(rand(4), ones(4, 1))
+[A, b, x1] = gen_data();
+A*sd(A, b, x1)
