@@ -49,29 +49,28 @@ function t = ja(A, b)
 end
 
 % Returns average normalized time taken by Gauss Seidel/Jacobi routine for matrices of size N
-function t = avg(f, N, n)
+function t = avg(func, N, n)
   T = ones(n, 1);
   b = ones(N, 1);
   for i = 1:n
-    T(i) = f(mat(N), b);
+    T(i) = func(mat(N), b);
   end
   t = mean(T);
  end
  
 % Plots normalized time taken by Gauss Seidel/Jacobi routine
-function plt(f)
-  N = [10, 50];
+function plt(func, img_name)
+  N = [10, 50, 100, 500];
   t = ones(4, 1);
   for i = 1:4
-    t(i) = avg(f, N(i), 20);
+    t(i) = avg(func, N(i), 100);
   end
-  disp('bob')
   fig = figure("visible", "off");
-  plot(N, t); 
-  saveas(fig, "Gauss_Seidel", "png");
+  plot(N, t);
+  xlabel('size of matrix'); ylabel('normalized time'); 
+  saveas(fig, img_name, "png");
   disp("Plot has been generated")
 end
 
-%plt(@gs);
-%plt(@ja);
-ja(mat(50), ones(50,1))
+plt(@gs, "Gauss_Seidel");
+plt(@ja, "Jacobi");
