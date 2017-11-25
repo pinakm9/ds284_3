@@ -3,7 +3,7 @@
 
 % Random matrix generator
 function A = mat(N)
-  A = rand(N) + (2*N)*diag(randperm(N)); 
+  A = rand(N) + (100)*diag(randperm(N)); 
 end
 
 % Gauss Seidel routine
@@ -63,7 +63,7 @@ function plt(func, img_name)
   N = [10, 50, 100, 500];
   t = ones(4, 1);
   for i = 1:4
-    t(i) = avg(func, N(i), 100);
+    t(i) = avg(func, N(i), 50);
   end
   fig = figure("visible", "off");
   plot(N, t);

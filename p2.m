@@ -5,10 +5,10 @@
 function A = mat(N)
   [Q, R] = qr(rand(N));
   B = diag(rand(1, N-1),1);
-  A = Q*[diag(rand(1, N))+B+B']*Q';
+  A = diag(rand(1, N))+B+B';
 end
 
-% Power mathod for finding largest eigenvalue
+% Power mathod 
 function [l, t] = pow(A)
   tic;
   [n, ~] = size(A);
@@ -27,31 +27,13 @@ function [l, t] = pow(A)
   t = toc;
 end
 
-% Power mathod for finding smallest eigenvalue
-function [l, t] = pow_s(A)
-  [n, ~] = size(A);
-  v = zeros(n,1);
-  v(1) = 1;
-  l0 = v'*A*v;
-  while true
-    w = A\v;
-    v = w/norm(w);
-    l = v'*A*v;
-    if abs((l-l0)/l0) < 1e-3
-      break
-    end
-    l0 = l;
-  end
-end
-
-% Rayleigh method for finding smallest positive eigenvalue
+% Rayleigh method
 function [l, t] = ray(A)
   tic;
   [n, ~] = size(A);
-  I = eye(n);
-  v = zeros(n,1);
-  v(1) = 1;
+  v = ones(n, 1);
   l0 = 0;
+  I = eye(n);
   while true
     w = (A-l0*I)\v;
     v = w/norm(w);
@@ -88,5 +70,6 @@ function plt(func, img_name)
   disp("Plot has been generated")
 end
 
-plt(@pow, "Power");
-plt(@ray, "Rayleigh");
+%plt(@pow, "Power");
+%plt(@ray, "Rayleigh");
+[l, t]=pow(mat(10))
