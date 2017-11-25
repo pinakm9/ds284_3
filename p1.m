@@ -3,7 +3,7 @@
 
 % Random matrix generator
 function A = mat(N)
-  A = rand(N) + (100)*diag(randperm(N)); 
+  A = rand(N) + (10)*diag(randperm(N)); 
 end
 
 % Gauss Seidel routine
@@ -72,5 +72,5 @@ function plt(func, img_name)
   disp("Plot has been generated")
 end
 
-plt(@gs, "Gauss_Seidel");
-plt(@ja, "Jacobi");
+plt(@gs, "img1/Gauss_Seidel");
+plt(@ja, "img1/Jacobi");

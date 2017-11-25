@@ -97,6 +97,31 @@ function [cs sn] = givens_rotation(v1, v2)
   end
 end
 
+% Conjugate gradient routine
+function [x, re, rr] = cg(A, b, x1, maxitr, tol)
+  n = length(b);
+  x = zeros(n, 1);
+  nx1 = norm(x1);
+  r0 = b - A*x;
+  p = r0; r = r0;
+  itr = 0;
+  while true
+    a = (r0'*r0)/(p'*A*p);
+    x =  x + a*p;
+    r =  r - a*A*p;
+    re = norm(x-x1)/nx1;
+    itr = itr + 1;
+    if re < tol || itr > maxitr
+      break
+    end
+    beta =  (r'*r)/(r0'*r0);
+    p = r + beta*p;
+    r0 = r;
+  end
+  rr = norm(b-a*x)/norm(b); 
+end
+
+% Computes errors for bicg and gmres
 function e = err(A, b, x1)
   nx1 = norm(x1); nb = norm(b);
   [x, ~] = bicgstab(A, b, 1e-6, 20);
@@ -105,13 +130,16 @@ function e = err(A, b, x1)
   e = [e [norm(x-x1)/nx1, norm(b-A*x)/nb]]; 
 end
 
-function e = avg_err(N, k, n)
-  e = zeros(4, 1);
+% Computes average error for bicg, gmres, cg
+function [e, ecg] = avg_err(N, k, n)
+  e = zeros(4, 1); ecg = [0 0];
   for j = 1:n
       [A, b, x1, M, c] = gen_data(N, k);
       e = e + err(A, b, x1);
+      [~, re, rr] = cg(M, c, M\c, 20, 1e-6);
+      ecg = ecg + [re, rr];
   end
-  e = e/n;
+  e = e/n; ecg = ecg/n;
 end
 
 function plt(k)
@@ -119,33 +147,47 @@ function plt(k)
   gre = zeros(10, 1); % Relative error for gmres
   brr = zeros(10, 1); % relative residue for bicg
   grr = zeros(10, 1); % relative residue for gmres
+  cre = zeros(10, 1); % Relative error for cg
+  crr = zeros(10, 1); % relative residue for cg
   for i = 1:10
-    e = avg_err(100*i, k, 10);
+    [e, ecg] = avg_err(100*i, k, 1);
     bre(i) = e(1);
     brr(i) = e(2);
     gre(i) = e(3);
     grr(i) = e(4);
+    cre(i) = ecg(1);
+    crr(i) = ecg(2);
    end
    X = [100:100:1000];
-   fig = figure();
+   fig = figure('visible', 'off');
    plot(X, bre);
    xlabel('size of matrix');
    ylabel('relative error');
-   saveas(fig, strcat('Rel_err_bicg_', num2str(k)), 'png');
+   saveas(fig, strcat('img4/Rel_err_bicg_', num2str(k)), 'png');
    plot(X, gre, '--');
    xlabel('size of matrix');
    ylabel('relative error');
-   saveas(fig, strcat('Rel_err_gmres_', num2str(k)), 'png');
+   saveas(fig, strcat('img4/Rel_err_gmres_', num2str(k)), 'png');
    plot(X, brr);
    xlabel('size of matrix');
    ylabel('relative residue');
-   saveas(fig, strcat('Rel_res_bicg_', num2str(k)), 'png');
+   saveas(fig, strcat('img4/Rel_res_bicg_', num2str(k)), 'png');
    plot(X, grr);
    xlabel('size of matrix');
    ylabel('relative residue');
-   saveas(fig, strcat('Rel_res_gmres_', num2str(k)), 'png');
+   saveas(fig, strcat('img4/Rel_res_gmres_', num2str(k)), 'png');
+   plot(X, cre, '--');
+   xlabel('size of matrix');
+   ylabel('relative error');
+   saveas(fig, strcat('img4/Rel_err_cg_', num2str(k)), 'png');
+   plot(X, crr);
+   xlabel('size of matrix');
+   ylabel('relative residue');
+   saveas(fig, strcat('img4/Rel_res_cg_', num2str(k)), 'png');
 end
 
-tic
-plt(3)
-toc
+for k = 3:6
+  plt(k);
+end
+
+disp('Plots have been generated')

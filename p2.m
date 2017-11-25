@@ -5,7 +5,7 @@
 function A = mat(N)
   [Q, R] = qr(rand(N));
   B = diag(rand(1, N-1),1);
-  A = diag(rand(1, N))+B+B';
+  A = Q*(diag(rand(1, N))+B+B')*Q';
 end
 
 % Power mathod 
@@ -70,6 +70,5 @@ function plt(func, img_name)
   disp("Plot has been generated")
 end
 
-%plt(@pow, "Power");
-%plt(@ray, "Rayleigh");
-[l, t]=pow(mat(10))
+plt(@pow, "img2/Power");
+plt(@ray, "img2/Rayleigh");
